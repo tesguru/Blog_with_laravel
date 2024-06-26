@@ -3,10 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
@@ -25,6 +25,14 @@ class User extends Authenticatable
 
     function userHasManyPost(){
         return  $this->hasMany(Post::class, 'user_id');
+       }
+       //Followed User will get all where userid = follow user
+       function followers(){
+        return $this->hasMany(Follow::class, 'followedUser');
+       }
+       //followed get all where userid = userid
+       function followerstheseuser(){
+        return $this->hasMany(Follow::class, 'user_id');
        }
 
     /**

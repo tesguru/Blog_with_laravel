@@ -1,21 +1,37 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\User;
+use App\Models\Follow;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Storage;
+
 
 class UserController extends Controller
 {
 
-    public function profile(User $post){ 
-        //look it base on username not id because Id is a default
-        return view("profile-post",
-        ['name'=>$post->name,
-         'post'=>$post->userHasManyPost()->latest()->get(),
-        'post_count'=>$post->userHasManyPost()->count()]);
+    public function profile(User $post)
+{
+    $currentlyFollowing = 0;
+    if (auth()->check()) {
+        $currentlyFollowing = Follow::where([
+            ['user_id', '=', auth()->user()->id],
+            ['followedUser', '=', $post->id]
+        ])->count();
     }
+
+    $posts = $post->userHasManyPost()->latest()->get();
+    $post_count = $posts->count();
+  
+
+    return view("profile-post", [
+        'name' => $post->name,
+        'currentlyFollowing' => $currentlyFollowing,
+        'post' => $posts,
+        'postCount' => $post_count
+    ]);
+}
+
 
     public function showCorrectHomepage(){
        if(auth()->check()){
@@ -63,15 +79,46 @@ class UserController extends Controller
     public function showAvatarForm(){
         return view('avatar-form');
     }
-    public function updateAvatar(Request $request){
-        $request ->validate(
-            [
-                'avatar'=>'required|image|max:6000'
-            ]
-            );
-
-            $filename 
-$img = $request->file('avatar')->store('public/avatar');
-
+    public function profileFollowers(User $post){
+    return   $post->followers()->latest()->get();
+        die;
+        $currentlyFollowing = 0;
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([
+                ['user_id', '=', auth()->user()->id],
+                ['followedUser', '=', $post->id]
+            ])->count();
+        }
+    
+        $posts = $post->userHasManyPost()->latest()->get();
+        $post_count = $posts->count();
+      
+    
+        return view("profile-followers", [
+            'name' => $post->name,
+            'currentlyFollowing' => $currentlyFollowing,
+            'post' => $posts,
+            'postCount' => $post_count
+        ]);
+    }
+    public function profileFollowing(User $post){
+        $currentlyFollowing = 0;
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([
+                ['user_id', '=', auth()->user()->id],
+                ['followedUser', '=', $post->id]
+            ])->count();
+        }
+    
+        $posts = $post->userHasManyPost()->latest()->get();
+        $post_count = $posts->count();
+      
+    
+        return view("profile-following", [
+            'name' => $post->name,
+            'currentlyFollowing' => $currentlyFollowing,
+            'post' => $posts,
+            'postCount' => $post_count
+        ]);
     }
 }
